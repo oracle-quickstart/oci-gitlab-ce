@@ -1,0 +1,52 @@
+#cloud-config
+final_message: "The system is finally up, after $UPTIME seconds"
+growpart:
+  devices: ['/']
+  mode: auto
+  ignore_growroot_disabled: false
+package_reboot_if_required: true
+package_update: true
+package_upgrade: true
+packages:
+  - docker
+  - docker-engine
+  - docker-compose
+  - firewalld
+  - libselinux-python3
+  - python3
+  - python3-pip
+  - python3-setuptools
+  - yum-cron
+write_files:
+  - content: |
+      #!/bin/bash
+      cd /root/gitlab
+      docker-compose pull
+      docker-compose up -d
+    path: /etc/cron.daily/docker-compose-pull
+  - content: |
+      ---
+      networks:
+        common:
+      services:
+        gitlab:
+          image: "gitlab/gitlab-ce:latest"
+          networks:
+            - "common"
+          ports:
+            - "80:80"
+            - "443:443"
+            - "${GITLAB_SSH_PORT}:22"
+          restart: "always"
+          volumes:
+            - gitlab_config:/etc/gita:rw
+            - gitlab_logs:/var/log/gitlab:rw
+            - gitlab_data:/var/opt/gitlab:rw
+      version: "3"
+      volumes:
+        gitlab_config: {}
+        gitlab_data: {}
+        gitlab_logs: {}
+
+    path: /root/gitlab/docker-compose.yml
+

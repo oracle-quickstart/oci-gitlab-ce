@@ -1,0 +1,122 @@
+---
+description: Deploy GitLab CE on OracleLinux 7
+schemaVersion: 1.1.0
+source:
+  type: web
+  reference: https://www.oracle.com
+title: Deploy GitLab CE on OracleLinux 7
+variableGroups:
+  - title: Hidden
+    variables:
+      - compartment_ocid
+      - tenancy_ocid
+      - region
+      - image_oraclelinux_7
+    visible: false
+  - title: Network Configuration
+    variables:
+      - vcn_compartment_ocid
+      - vcn_ocid
+      - subnet_compartment_ocid
+      - subnet_ocid
+      - public_ip
+    visible: true
+  - title: Server Configuration
+    variables:
+      - server_compartment_ocid
+      - server_ad
+      - server_fd
+      - server_shape
+      - server_boot_volume
+      - ssh_public_key
+    visible: true
+  - title: GitLab CE Configuration
+    variables:
+      - gitlab_ssh_port
+    visible: true
+variables:
+  gitlab_ssh_port:
+    description: Ingress SSH port on the OCI Compute Instance
+    minimum: 1025
+    maximum: 65535
+    required: true
+    title: GitLab CE SSH Port
+    type: number
+  compartment_ocid:
+    required: true
+    title: Compartment
+    type: oci:identity:compartment:id
+  public_ip:
+    required: true
+    title: Public IP
+    type: boolean
+  region:
+    required: true
+    title: region
+    type: oci:identity:region:name
+  server_ad:
+    dependsOn:
+      compartmentId: ${server_compartment_ocid}
+    required: true
+    title: Availability Domain
+    type: oci:identity:availabilitydomain:name
+  server_boot_volume:
+    default: 100
+    maximum: 16384
+    minimum: 50
+    required: true
+    type: number
+  server_compartment_ocid:
+    required: true
+    title: Compartment
+    type: oci:identity:compartment:id
+  server_fd:
+    dependsOn:
+      compartmentId: ${server_compartment_ocid}
+      availabilityDomainName: ${server_ad}
+    required: true
+    title: Fault Domain
+    type: oci:identity:faultdomain:name
+  server_shape:
+    dependsOn:
+      compartmentId: ${server_compartment_ocid}
+    default: "VM.Standard.E2.1.Micro"
+    required: true
+    title: Instance Shape
+    type: oci:core:instanceshape:name
+  tenancy_ocid:
+    required: true
+    title: Tenancy
+    type: string
+  ssh_public_key:
+    additionalProps:
+      allowMultiple: true
+    default: [""]
+    pattern: "((^(ssh-rsa AAAAB3NzaC1yc2|ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNT|ecdsa-sha2-nistp384 AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAAAIbmlzdHAzOD|ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1Mj|ssh-ed25519 AAAAC3NzaC1lZDI1NTE5|ssh-dss AAAAB3NzaC1kc3)[0-9A-Za-z+/]+[=]{0,3})( [^,]*)?)(,((ssh-rsa AAAAB3NzaC1yc2|ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNT|ecdsa-sha2-nistp384 AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAAAIbmlzdHAzOD|ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1Mj|ssh-ed25519 AAAAC3NzaC1lZDI1NTE5|ssh-dss AAAAB3NzaC1kc3)[0-9A-Za-z+/]+[=]{0,3})( [^,]*)?)*$"
+    required: false
+    title: SSH Public Key
+    type: oci:core:ssh:publickey
+  subnet_compartment_ocid:
+    default: ${vcn_compartment_ocid}
+    required: true
+    title: Subnet Compartment
+    type: oci:identity:compartment:id
+  subnet_ocid:
+    dependsOn:
+      compartmentId: ${subnet_compartment_ocid}
+      vcnId: ${vcn_ocid}
+    required: true
+    title: Subnet
+    type: oci:core:subnet:id
+  vcn_compartment_ocid:
+    default: ${compartment_ocid}
+    required: true
+    title: VCN Compartment
+    type: oci:identity:compartment:id
+  vcn_ocid:
+    dependsOn:
+      compartmentId: ${vcn_compartment_ocid}
+    required: true
+    title: VCN
+    type: oci:core:vcn:id
+
