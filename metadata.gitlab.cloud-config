@@ -39,7 +39,7 @@ write_files:
             - "${GITLAB_SSH_PORT}:22"
           restart: "always"
           volumes:
-            - gitlab_config:/etc/gita:rw
+            - gitlab_config:/etc/gitlab:rw
             - gitlab_logs:/var/log/gitlab:rw
             - gitlab_data:/var/opt/gitlab:rw
       version: "3"
